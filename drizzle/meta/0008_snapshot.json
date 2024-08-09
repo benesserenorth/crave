@@ -222,7 +222,7 @@
         },
         "embedding": {
           "name": "embedding",
-          "type": "vector",
+          "type": "vector(768)",
           "primaryKey": false,
           "notNull": false
         },
@@ -448,7 +448,7 @@
         },
         "embedding": {
           "name": "embedding",
-          "type": "vector",
+          "type": "vector(768)",
           "primaryKey": false,
           "notNull": false
         },
