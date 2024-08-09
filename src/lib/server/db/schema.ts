@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { bigint, boolean, index, integer, pgTable, primaryKey, real, serial, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { bigint, boolean, index, integer, pgTable, primaryKey, real, serial, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { vector } from 'pgvector/drizzle-orm';
 
 export const user = pgTable('user', {
@@ -10,6 +10,19 @@ export const user = pgTable('user', {
 	verified: boolean('verified').notNull().default(false),
 	thumbnail: text('thumbnail'),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Users that have allowed to create an account but haven't yet.
+//
+// They will be present in `user`, but upon login this table will
+// be checked and their password will be set to the one they log in with.
+export const pendingUser = pgTable('pending_user', {
+	userId: text('user_id').notNull().references(() => user.id).primaryKey(),
+	code: uuid('code').notNull(),
+}, table => {
+	return {
+		codeIdx: index().on(table.code),
+	}
 });
 
 export const recipe = pgTable('recipe', {

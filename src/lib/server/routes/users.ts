@@ -3,15 +3,102 @@ import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm/sql';
 import pg from 'pg'
 import { z } from 'zod';
 
+import { API_SECRET } from '$env/static/private';
 import { procedure, protectedProcedure, router } from '$lib/server/trpc';
 
 import { db } from '../db';
-import { recipe, subscription, user } from '../db/schema';
+import { pendingUser, recipe, subscription, user } from '../db/schema';
 import { count, partialRecipe, subscribed, user as userSelect } from '../db/select';
+import { auth } from '../lucia';
 import { PartialRecipe, User } from '../schema';
 import { get } from '../sentry';
 
 export default router({
+	getByCode: procedure
+		.meta({
+			openapi: {
+				method: 'GET',
+				path: '/users/code/{code}',
+				summary: 'Get user by code',
+				description: 'Gets a user by their code',
+				tags: ['user'],
+			},
+		})
+		.input(z.object({ code: z.string().uuid() }))
+		.output(User)
+		.query(async ({ input }) => {
+			const users = await get(db
+				.select(userSelect)
+				.from(pendingUser)
+				.innerJoin(user, eq(user.id, pendingUser.userId))
+				.where(eq(pendingUser.code, input.code)));
+
+			if (!users.length) {
+				throw new TRPCError({
+					code: 'NOT_FOUND',
+					message: 'User not found.',
+				});
+			}
+
+			return users[0];
+		}),
+	create: procedure
+		.meta({
+			openapi: {
+				method: 'POST',
+				path: '/users',
+				summary: 'Create user',
+				description: 'Creates a new user',
+				tags: ['user'],
+			},
+		})
+		.input(User.pick({
+			username: true,
+			name: true,
+		}).extend({
+			code: z.string().uuid(),
+			secret: z.string(),
+		}))
+		.output(z.void())
+		.mutation(async ({ input }) => {
+			if (input.secret !== API_SECRET) {
+				throw new TRPCError({
+					code: 'UNAUTHORIZED',
+					message: 'Invalid secret.',
+				});
+			}
+
+			try {
+				const username = input.username.toLowerCase();
+				await auth.createUser({
+					key: {
+						providerId: 'username',
+						providerUserId: username,
+						password: input.code,
+					},
+					attributes: {
+						username,
+						name: input.name,
+						thumbnail: null,
+					},
+				});
+			} catch (e) {
+				if (
+					e instanceof pg.DatabaseError &&
+        e.constraint
+				) {
+					throw new TRPCError({
+						code: 'CONFLICT',
+						message: 'Username already taken.',
+					});
+				}
+
+				throw new TRPCError({
+					code: 'INTERNAL_SERVER_ERROR',
+					message: 'An unknown error occurred.',
+				});
+			}
+		}),
 	update: protectedProcedure
 		.meta({
 			openapi: {
@@ -26,6 +113,8 @@ export default router({
 			name: true,
 			thumbnail: true,
 			username: true,
+		}).extend({
+			password: z.string().optional(),
 		}))
 		.output(z.void())
 		.mutation(async ({ ctx, input }) => {
@@ -34,6 +123,10 @@ export default router({
 					.update(user)
 					.set(input)
 					.where(eq(user.id, ctx.session.user.userId)));
+
+				if (input.password) {
+					await auth.updateKeyPassword('username', ctx.session.user.username, input.password);
+				}
 			} catch (e) {
 				if (
 					e instanceof pg.DatabaseError &&

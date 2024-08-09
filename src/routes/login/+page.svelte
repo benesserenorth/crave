@@ -1,17 +1,32 @@
 <script lang="ts">
-	import GitHub from '~icons/logos/github-icon';
-	import Google from '~icons/logos/google-icon';
-	import { enhance } from '$app/forms';
-	import Blob from '$lib/components/blob/Blob.svelte';
-	import { t } from '$lib/translations';
-	import { addFromQuery } from '$lib/util';
-	
-	import type { ActionData } from './$types';
+	import { enhance } from "$app/forms";
+	import { page } from "$app/stores";
+	import { trpc } from "$lib/client";
+	import Blob from "$lib/components/blob/Blob.svelte";
+	import { t } from "$lib/translations";
+	import { addFromQuery } from "$lib/util";
+
+	import type { ActionData } from "./$types";
+
+	let code = $page.url.searchParams.get("code");
 
 	let showPassword = false;
 	let width = 0;
 	let height = 0;
 	let loading = false;
+
+	let username = "";
+
+	$: if (code) {
+		trpc.users.getByCode
+			.query({ code })
+			.then((user) => {
+				username = user.username;
+			})
+			.catch(() => {
+				// do nothing
+			});
+	}
 
 	export let form: ActionData;
 </script>
@@ -37,54 +52,32 @@
 			};
 		}}
 	>
-		<div class="grid grid-cols-2 md:grid-cols-1 gap-1">
-			<a
-				class="btn btn-md dark:btn-neutral w-full gap-4"
-				href="/login/github"
-				use:addFromQuery
-			>
-				<GitHub class="h-6 w-6 dark:invert" />
-				<span class="hidden md:block">
-					{$t('auth.continue-github')}
-				</span>
-			</a>
-			<a
-				class="btn btn-md dark:btn-neutral w-full gap-4"
-				href="/login/google"
-				use:addFromQuery
-			>
-				<Google class="h-6 w-6" />
-				<span class="hidden md:block">
-					{$t('auth.continue-google')}
-				</span>
-			</a>
-		</div>
-
-		<div class="divider text-xs uppercase">
-			{$t('auth.or')}
-		</div>
-
 		{#if form?.message}
 			<div class="alert alert-error">{form.message}</div>
 		{/if}
 
+		{#if username}
+			<input type="text" name="code" bind:value={code} hidden />
+		{/if}
+
 		<label class="label" for="username">
 			<span class="label-text font-bold text-neutral-900 dark:text-neutral-100">
-				{$t('label.username')}
+				{$t("label.username")}
 			</span>
 		</label>
 		<input
 			type="text"
 			name="username"
-			placeholder={$t('placeholder.username')}
+			placeholder={$t("placeholder.username")}
 			class="input input-bordered"
 			required
+			bind:value={username}
 			maxlength={39}
 		/>
 
 		<label class="label" for="password">
 			<span class="label-text font-bold text-neutral-900 dark:text-neutral-100">
-				{$t('label.password')}
+				{$t("label.password")}
 			</span>
 			<button
 				type="button"
@@ -98,7 +91,7 @@
 						/>
 					</svg>
 
-					{$t('auth.hide')}
+					{$t("auth.hide")}
 				{:else}
 					<svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
 						<path
@@ -106,15 +99,15 @@
 						/>
 					</svg>
 
-					{$t('auth.show')}
+					{$t("auth.show")}
 				{/if}
 			</button>
 		</label>
 		<input
-			type={showPassword ? 'text' : 'password'}
+			type={showPassword ? "text" : "password"}
 			name="password"
 			class="input input-bordered"
-			placeholder={$t('placeholder.password')}
+			placeholder={$t("placeholder.password")}
 			required
 			maxlength={255}
 		/>
@@ -124,20 +117,9 @@
 				<span class="loading loading-ball loading-md" />
 			{/if}
 
-			{$t('auth.log-in')}
+			{$t("auth.log-in")}
 		</button>
 
 		<div class="divider" />
-
-		<p class="text-center text-sm">
-			{$t('auth.switch-to-sign-up')}
-			<a
-				href="/register"
-				class="underline text-neutral-100 dark:text-neutral-50"
-				use:addFromQuery
-			>
-				{$t('auth.switch-to-sign-up-action')}
-			</a>
-		</p>
 	</form>
 </div>

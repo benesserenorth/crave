@@ -45,7 +45,7 @@ export function addFromQuery(node: HTMLAnchorElement) {
 		page.subscribe(page => {
 			const url = new URL(node.href);
 
-			if (page.url.pathname !== '/login' && page.url.pathname !== '/register') {
+			if (page.url.pathname !== '/login') {
 				url.searchParams.set('from', page.url.pathname + page.url.search);
 			} else {
 				url.searchParams.delete('from');
