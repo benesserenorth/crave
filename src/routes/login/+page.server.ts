@@ -51,7 +51,7 @@ export const actions: Actions = {
 
 			if (result.data.code) {
 				// update password
-				await auth.updateKeyPassword('username', key.userId, result.data.password);
+				await auth.updateKeyPassword('username', result.data.username.toLowerCase(), result.data.password);
 
 				// delete code
 				await db.delete(pendingUser).where(eq(pendingUser.code, result.data.code));

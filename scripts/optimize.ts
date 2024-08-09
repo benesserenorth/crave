@@ -42,8 +42,6 @@ export const db = drizzle(pool, { schema });
 			await db.update(schema.recipe)
 				.set({ thumbnail: image })
 				.where(eq(schema.recipe.id, id));
-
-			console.log(`optimized recipe ${id}`);
 		}));
 	}
 })();

@@ -70,17 +70,22 @@ export default router({
 
 			try {
 				const username = input.username.toLowerCase();
-				await auth.createUser({
+				const user = await auth.createUser({
 					key: {
 						providerId: 'username',
-						providerUserId: username,
+						providerUserId: username.toLowerCase(),
 						password: input.code,
 					},
 					attributes: {
-						username,
+						username: username.toLowerCase(),
 						name: input.name,
 						thumbnail: null,
 					},
+				});
+
+				await db.insert(pendingUser).values({
+					userId: user.userId,
+					code: input.code,
 				});
 			} catch (e) {
 				if (

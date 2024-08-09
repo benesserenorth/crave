@@ -119,7 +119,5 @@
 
 			{$t("auth.log-in")}
 		</button>
-
-		<div class="divider" />
 	</form>
 </div>
