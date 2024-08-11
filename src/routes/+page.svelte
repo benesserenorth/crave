@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { t } from "$lib/translations";
+	import { t } from '$lib/translations';
 </script>
 
 <div class="hero min-h-screen bg-base-200">
@@ -14,15 +14,15 @@
 			<h1
 				class="text-8xl font-extrabold dark:text-neutral-100 text-neutral-800 crave"
 			>
-				{@html $t("home.title")}
+				{@html $t('home.title')}
 			</h1>
 
 			<p class="py-6 text-3xl">
-				{$t("home.subtitle")}
+				{$t('home.subtitle')}
 			</p>
 
 			<a href="/recipes" class="btn btn-lg btn-accent">
-				{$t("home.browse-recipes")}
+				{$t('home.browse-recipes')}
 			</a>
 		</div>
 	</div>

@@ -1,21 +1,20 @@
 <script lang="ts">
-	import { enhance } from "$app/forms";
-	import { page } from "$app/stores";
-	import { trpc } from "$lib/client";
-	import Blob from "$lib/components/blob/Blob.svelte";
-	import { t } from "$lib/translations";
-	import { addFromQuery } from "$lib/util";
+	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
+	import { trpc } from '$lib/client';
+	import Blob from '$lib/components/blob/Blob.svelte';
+	import { t } from '$lib/translations';
 
-	import type { ActionData } from "./$types";
+	import type { ActionData } from './$types';
 
-	let code = $page.url.searchParams.get("code");
+	let code = $page.url.searchParams.get('code');
 
 	let showPassword = false;
 	let width = 0;
 	let height = 0;
 	let loading = false;
 
-	let username = "";
+	let username = '';
 
 	$: if (code) {
 		trpc.users.getByCode
@@ -62,13 +61,13 @@
 
 		<label class="label" for="username">
 			<span class="label-text font-bold text-neutral-900 dark:text-neutral-100">
-				{$t("label.username")}
+				{$t('label.username')}
 			</span>
 		</label>
 		<input
 			type="text"
 			name="username"
-			placeholder={$t("placeholder.username")}
+			placeholder={$t('placeholder.username')}
 			class="input input-bordered"
 			required
 			bind:value={username}
@@ -77,7 +76,7 @@
 
 		<label class="label" for="password">
 			<span class="label-text font-bold text-neutral-900 dark:text-neutral-100">
-				{$t("label.password")}
+				{$t('label.password')}
 			</span>
 			<button
 				type="button"
@@ -91,7 +90,7 @@
 						/>
 					</svg>
 
-					{$t("auth.hide")}
+					{$t('auth.hide')}
 				{:else}
 					<svg class="h-4 w-4 fill-current" viewBox="0 0 24 24">
 						<path
@@ -99,15 +98,15 @@
 						/>
 					</svg>
 
-					{$t("auth.show")}
+					{$t('auth.show')}
 				{/if}
 			</button>
 		</label>
 		<input
-			type={showPassword ? "text" : "password"}
+			type={showPassword ? 'text' : 'password'}
 			name="password"
 			class="input input-bordered"
-			placeholder={$t("placeholder.password")}
+			placeholder={$t('placeholder.password')}
 			required
 			maxlength={255}
 		/>
@@ -117,7 +116,7 @@
 				<span class="loading loading-ball loading-md" />
 			{/if}
 
-			{$t("auth.log-in")}
+			{$t('auth.log-in')}
 		</button>
 	</form>
 </div>
