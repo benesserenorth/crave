@@ -229,7 +229,7 @@ export default router({
 					eq(subscription.channelId, users[0].id),
 				)));
 		}),
-	get: procedure
+	get: protectedProcedure
 		.meta({
 			openapi: {
 				method: 'GET',
@@ -267,7 +267,7 @@ export default router({
 
 			return users[0];
 		}),
-	recipes: procedure
+	recipes: protectedProcedure
 		.meta({
 			openapi: {
 				method: 'GET',

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
-	import type { ComponentType, SvelteComponent } from 'svelte';
+	import { type ComponentType, onMount, type SvelteComponent } from 'svelte';
 
 	import Channel from '~icons/ic/baseline-account-box';
 	import Create from '~icons/ic/baseline-add';
@@ -13,6 +13,7 @@
 	import Recipes from '~icons/ic/baseline-restaurant-menu';
 	import Settings from '~icons/ic/baseline-settings';
 	import Logo from '~icons/noto/shallow-pan-of-food';
+	import { goto } from '$app/navigation';
 	import { PUBLIC_FALLBACK_AVATAR_URL } from '$env/static/public';
 	import { trpc } from '$lib/client';
 	import { t } from '$lib/translations';
@@ -23,6 +24,12 @@
 
 	export let year = new Date().getFullYear();
 	export let data: PageData;
+
+	onMount(() => {
+		if (!data.user) {
+			goto('/login');
+		}
+	});
 
 	type SidebarCategory = {
 		name?: string;

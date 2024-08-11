@@ -12,7 +12,7 @@ import { htmlToMd, mdToHtml } from '$lib/server/md';
 import { textToRecipe } from '$lib/server/openai';
 import { Id, PartialRecipe, Recipe } from '$lib/server/schema';
 import { get } from '$lib/server/sentry';
-import { procedure, protectedProcedure, router } from '$lib/server/trpc';
+import { protectedProcedure, router } from '$lib/server/trpc';
 
 import vector from './vector';
 
@@ -158,7 +158,7 @@ export default router({
 				.values({
 					authorId: ctx.session.user.userId,
 					title: mdToHtml(input.title),
-					thumbnail: await optimizeImage(input.thumbnail),
+					thumbnail: input.thumbnail ? await optimizeImage(input.thumbnail) : '',
 					ingredients: input.ingredients.map(mdToHtml),
 					directions: input.directions.map(mdToHtml),
 					tags: input.tags.map(mdToHtml),
@@ -179,7 +179,7 @@ export default router({
 
 			return recipes[0];
 		}),
-	autocomplete: procedure
+	autocomplete: protectedProcedure
 		.meta({
 			openapi: {
 				method: 'POST',
@@ -204,7 +204,7 @@ export default router({
 
 			return recipes;
 		}),
-	search: procedure
+	search: protectedProcedure
 		.meta({
 			openapi: {
 				method: 'POST',
@@ -234,7 +234,7 @@ export default router({
 
 			return recipes;
 		}),
-	recommended: procedure
+	recommended: protectedProcedure
 		.meta({
 			openapi: {
 				method: 'GET',
@@ -266,7 +266,7 @@ export default router({
 
 			return recipes;
 		}),
-	random: procedure
+	random: protectedProcedure
 		.meta({
 			openapi: {
 				method: 'GET',
@@ -294,7 +294,7 @@ export default router({
 
 			return recipes;
 		}),
-	get: procedure
+	get: protectedProcedure
 		.meta({
 			openapi: {
 				method: 'GET',

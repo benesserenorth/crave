@@ -7,10 +7,10 @@ import { recipe, user } from '$lib/server/db/schema';
 import { partialRecipe, random } from '$lib/server/db/select';
 import { PartialRecipe } from '$lib/server/schema';
 import { get } from '$lib/server/sentry';
-import { procedure, router } from '$lib/server/trpc';
+import { protectedProcedure, router } from '$lib/server/trpc';
 
 export default router({
-	search: procedure
+	search: protectedProcedure
 		.meta({
 			openapi: {
 				method: 'POST',
