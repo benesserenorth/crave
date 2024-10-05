@@ -37,7 +37,7 @@ You must only output valid JSON with no extraneous characters or backticks, with
 
 export async function textToRecipe(text: string) {
 	const response = await client.chat.completions.create({
-		model: 'gpt-4o',
+		model: 'gpt-4o-mini',
 		messages: [
 			{ role: 'system', content: SYSTEM_PROMPT },
 			{ role: 'user', content: text },
