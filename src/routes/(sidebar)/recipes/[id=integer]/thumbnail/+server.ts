@@ -29,7 +29,6 @@ export const GET = async ({ params }) => {
 		status: 200,
 		headers: {
 			'Content-Type': 'image/webp',
-			'Cache-Control': 'public, max-age=86400',
 		},
 	});
 };
