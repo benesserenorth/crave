@@ -1,10 +1,9 @@
 <script lang="ts">
-	import type { MaybePromise } from '@sveltejs/kit';
 	import type { QueryObserverResult } from '@tanstack/svelte-query';
 	import type { User } from 'lucia';
 
 	import type { PartialRecipe } from '$lib/server/schema';
-	import type { Size } from '$lib/types';
+	import type { Size, MaybePromise } from '$lib/types';
 
 	import InfiniteScroll from '../InfiniteScroll.svelte';
 	import RecipeCard from './RecipeCard.svelte';

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { trpc } from '$lib/client';
 	import { t } from '$lib/translations';
+    import type { PageData } from './$types';
 
 	import type { Recipe } from './(components)/edit';
 	import EditRecipe from './(components)/EditRecipe.svelte';
@@ -35,10 +36,12 @@
 			url: '',
 		};
 	}
+
+	export let data: PageData;
 </script>
 
 {#if recipe}
-	<EditRecipe {recipe} />
+	<EditRecipe {recipe} user={data.user} />
 {:else}
 	<div class="flex flex-col items-center h-full">
 		<div class="grid max-w-4xl w-full gap-8 prose prose-h2:m-0 prose-p:m-0">

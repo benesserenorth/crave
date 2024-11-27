@@ -4,8 +4,12 @@
 	import { t } from '$lib/translations';
 
 	import type { Recipe } from '.';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { trpc } from '$lib/client';
+	import type { User } from 'lucia';
 
 	export let recipe: Recipe;
+	export let user: User | undefined = undefined;
 
 	let tag = '';
 	let files: FileList;
@@ -23,7 +27,65 @@
 
 		reader.readAsDataURL(file);
 	}
+
+	$: categoriesResponse = user && createQuery({
+		queryKey: ['categories'],
+		queryFn: () =>
+			trpc.users.categories.query({
+				username: user.username
+			}),
+	});
+
+	let categories: { id: number; name: string }[] = [];
+
+	$: {
+		if ($categoriesResponse?.data) {
+			categories = $categoriesResponse.data;
+		}
+	}
+
+	let categoryModal: HTMLDialogElement;
+	let category = '';
+
+	async function onCategoryCreate() {
+		const newCategory = await trpc.users.createCategory.mutate({
+			name: category
+		});
+
+		category = '';
+		categoryModal.close();
+
+		categories.push(newCategory);
+		categories = categories;
+	}
 </script>
+
+<dialog id="info" class="modal prose-h3:m-0" bind:this={categoryModal}>
+	<div class="modal-box">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+				✕
+			</button>
+		</form>
+
+		<h3 class="font-bold text-lg">{$t('content.create-category-title')}</h3>
+
+		<form method="dialog" on:submit={onCategoryCreate}>
+			<input
+				type="text"
+				class="bg-base-300 rounded-lg text-lg lg:text-2xl p-2"
+				placeholder={$t('placeholder.add-category')}
+				bind:value={category}
+				required
+			/>
+
+			<button class="btn btn-primary mt-2">{$t('label.create-category')}</button>
+		</form>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>
 
 <button
 	class="bg-base-300 rounded-2xl aspect-video flex place-items-center justify-center relative w-full h-full"
@@ -101,6 +163,21 @@
 	type="text"
 	bind:value={recipe.title}
 />
+
+<select class="select bg-base-300 rounded-lg text-lg lg:text-2xl p-2" bind:value={recipe.category}>
+	<option disabled selected hidden>{$t('placeholder.add-category')}</option>
+	<option value={undefined} on:click|preventDefault={() => categoryModal.showModal()}>
+		<button class="btn">
+			{$t('label.create-category')}
+		</button>
+	</option>
+	
+	{#each categories as category (category.id)}
+		<option value={category.name}>
+			{category.name}
+		</option>
+	{/each}
+</select>
 
 <input
 	class="bg-base-300 rounded-lg text-lg lg:text-2xl p-2"

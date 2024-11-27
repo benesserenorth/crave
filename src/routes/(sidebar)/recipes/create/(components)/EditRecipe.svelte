@@ -14,8 +14,10 @@
 	import Ingredients from './edit/Ingredients.svelte';
 	import Notes from './edit/Notes.svelte';
 	import Nutrition from './edit/Nutrition.svelte';
+    import type { User } from 'lucia';
 
 	export let recipe: Recipe;
+	export let user: User | undefined = undefined;
 
 	async function submit() {
 		recipe.thumbnail = recipe.thumbnail && (await resize(recipe.thumbnail));
@@ -37,6 +39,7 @@
 					notes: recipe.notes || null,
 					description: recipe.description || null,
 					url: recipe.url || null,
+					category: recipe.category || undefined,
 				}),
 				{
 					loading: $t('toast.create-recipe-loading'),
@@ -66,7 +69,7 @@
 	<div class="grid max-w-4xl w-full gap-2 h-full prose prose-h2:m-0">
 		<div class="flex flex-col gap-16">
 			<div class="flex flex-col gap-4">
-				<Content bind:recipe />
+				<Content bind:recipe {user} />
 			</div>
 			<div class="flex flex-col gap-4">
 				<Ingredients bind:recipe />

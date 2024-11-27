@@ -61,7 +61,7 @@
 			</div>
 
 			<div>
-				<div class="flex flex-row flex-wrap gap-1 mt-7">
+				<div class="flex flex-row flex-wrap gap-1 mt-7 not-prose">
 					{#each recipe.tags as tag}
 						<div class="badge badge-lg badge-neutral line-clamp-1">
 							{@html tag}

@@ -1,9 +1,9 @@
 import { eq, lt } from 'drizzle-orm';
-import { maxInnerProduct } from 'pgvector/drizzle-orm';
+import { innerProduct } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { db } from '$lib/server/db';
-import { recipe, user } from '$lib/server/db/schema';
+import { category, recipe, user } from '$lib/server/db/schema';
 import { partialRecipe, random } from '$lib/server/db/select';
 import { PartialRecipe } from '$lib/server/schema';
 import { get } from '$lib/server/sentry';
@@ -39,7 +39,8 @@ export default router({
 				})
 				.from(recipe)
 				.innerJoin(user, eq(recipe.authorId, user.id))
-				.where(input.vector ? lt(maxInnerProduct(recipe.embedding, input.vector), -0.6) : undefined)
+				.leftJoin(category, eq(recipe.categoryId, category.id))
+				.where(input.vector ? lt(innerProduct(recipe.embedding, input.vector), -0.6) : undefined)
 				.orderBy(random())
 				.limit(input.limit));
 

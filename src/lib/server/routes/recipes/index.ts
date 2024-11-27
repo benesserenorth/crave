@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { TEXT_EMBEDDER_PORT } from '$env/static/private';
 import { db } from '$lib/server/db';
-import { history, like, recipe, user } from '$lib/server/db/schema';
+import { category, history, like, recipe, user } from '$lib/server/db/schema';
 import { completeRecipe, maxInnerProduct, partialRecipe, random } from '$lib/server/db/select';
 import { optimizeImage } from '$lib/server/image';
 import { htmlToMd, mdToHtml } from '$lib/server/md';
@@ -36,6 +36,7 @@ const InputRecipe = Recipe.pick({
 	description: true,
 	notes: true,
 	url: true,
+	category: true,
 });
 
 export default router({
@@ -66,6 +67,7 @@ export default router({
 			description: true,
 			notes: true,
 			url: true,
+			category: true,
 		}).partial({
 			title: true,
 			thumbnail: true,
@@ -81,11 +83,28 @@ export default router({
 			description: true,
 			notes: true,
 			url: true,
+			category: true,
 		}))
 		.output(z.object({
 			id: Id,
 		}))
 		.mutation(async ({ input, ctx }) => {
+			const c = input.category && await get(db
+				.insert(category)
+				.values({
+					userId: ctx.session.user.userId,
+					name: input.category,
+				})
+				.onConflictDoUpdate({
+					target: [category.userId, category.name],
+					set: {
+						name: input.category,
+					}
+				})
+				.returning({
+					id: category.id,
+				}));
+
 			const update = await get(db
 				.update(recipe)
 				.set({
@@ -103,6 +122,7 @@ export default router({
 					description: input.description && mdToHtml(input.description),
 					notes: input.notes && mdToHtml(input.notes),
 					url: input.url,
+					categoryId: c && c[0].id || undefined,
 				})
 				.where(and(
 					eq(recipe.id, input.id),
@@ -153,6 +173,22 @@ export default router({
 				text: `${input.title} | ${input.tags.join(' ')} | ${input.ingredients.join(' ')} | ${input.description}`,
 			});
 
+			const c = input.category && await get(db
+				.insert(category)
+				.values({
+					userId: ctx.session.user.userId,
+					name: input.category,
+				})
+				.onConflictDoUpdate({
+					target: [category.userId, category.name],
+					set: {
+						name: input.category,
+					}
+				})
+				.returning({
+					id: category.id,
+				}));
+
 			const recipes = await get(db
 				.insert(recipe)
 				.values({
@@ -172,6 +208,7 @@ export default router({
 					description: input.description && mdToHtml(input.description),
 					notes: input.notes && mdToHtml(input.notes),
 					url: input.url,
+					categoryId: c && c[0].id || undefined,
 				})
 				.returning({
 					id: recipe.id,
@@ -228,6 +265,7 @@ export default router({
 				.select(partialRecipe)
 				.from(recipe)
 				.innerJoin(user, eq(recipe.authorId, user.id))
+				.leftJoin(category, eq(recipe.categoryId, category.id))
 				.orderBy(maxInnerProduct(recipe.embedding, vector.data.embedding))
 				.offset(25 * input.page)
 				.limit(25));
@@ -256,6 +294,7 @@ export default router({
 				.select(partialRecipe)
 				.from(recipe)
 				.innerJoin(user, eq(recipe.authorId, user.id))
+				.leftJoin(category, eq(recipe.categoryId, category.id))
 				.where(and(
 					ne(recipe.id, input.id),
 					lt(maxInnerProduct(recipe.embedding, e), -0.65),
@@ -288,6 +327,7 @@ export default router({
 				.select(partialRecipe)
 				.from(recipe)
 				.innerJoin(user, eq(recipe.authorId, user.id))
+				.leftJoin(category, eq(recipe.categoryId, category.id))
 				.where(h ? notInArray(recipe.id, h) : undefined)
 				.orderBy(random())
 				.limit(input.limit));
@@ -311,6 +351,7 @@ export default router({
 				.select(completeRecipe(ctx.session?.user.userId))
 				.from(recipe)
 				.innerJoin(user, eq(recipe.authorId, user.id))
+				.leftJoin(category, eq(recipe.categoryId, category.id))
 				.where(eq(recipe.id, input.id)));
 
 			if (!recipes.length) {
@@ -398,6 +439,7 @@ export default router({
 				.from(recipe)
 				.innerJoin(user, eq(recipe.authorId, user.id))
 				.innerJoin(like, eq(recipe.id, like.recipeId))
+				.leftJoin(category, eq(recipe.categoryId, category.id))
 				.where(eq(like.userId, ctx.session.user.userId))
 				.orderBy(desc(like.createdAt), asc(recipe.id))
 				.offset(25 * input.page)
@@ -425,6 +467,7 @@ export default router({
 				.from(recipe)
 				.innerJoin(user, eq(recipe.authorId, user.id))
 				.innerJoin(history, eq(recipe.id, history.recipeId))
+				.leftJoin(category, eq(recipe.categoryId, category.id))
 				.where(eq(history.userId, ctx.session.user.userId))
 				.orderBy(desc(history.createdAt), asc(recipe.id))
 				.offset(25 * input.page)

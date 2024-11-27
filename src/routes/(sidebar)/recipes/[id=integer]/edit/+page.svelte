@@ -18,6 +18,7 @@
 	import Ingredients from '../../create/(components)/edit/Ingredients.svelte';
 	import Notes from '../../create/(components)/edit/Notes.svelte';
 	import Nutrition from '../../create/(components)/edit/Nutrition.svelte';
+    import type { PageData } from './$types';
 
 	let recipe = {
 		id: 0,
@@ -52,18 +53,21 @@
 					thumbnail: '',
 					...r,
 				};
+			})
+			.catch(() => {
+				// do nothing
 			});
 	}
 
 	async function submit() {
-		recipe.thumbnail = await resize(recipe.thumbnail);
+		recipe.thumbnail = recipe.thumbnail && await resize(recipe.thumbnail);
 
 		try {
 			const { id } = await toast.promise(
 				trpc.recipes.edit.mutate({
 					id: recipe.id,
 					title: recipe.title,
-					thumbnail: recipe.thumbnail,
+					thumbnail: recipe.thumbnail || undefined,
 					tags: recipe.tags,
 					ingredients: recipe.ingredients,
 					directions: recipe.directions,
@@ -76,6 +80,7 @@
 					notes: recipe.notes || null,
 					description: recipe.description || null,
 					url: recipe.url,
+					category: recipe.category,
 				}),
 				{
 					loading: $t('toast.update-recipe-loading'),
@@ -99,13 +104,15 @@
 			// do nothing
 		}
 	}
+
+	export let data: PageData;
 </script>
 
 <div class="flex flex-col items-center h-full">
 	<div class="grid max-w-4xl w-full gap-2 h-full prose prose-h2:m-0">
 		<div class="flex flex-col gap-16">
 			<div class="flex flex-col gap-4">
-				<Content bind:recipe />
+				<Content bind:recipe user={data.user} />
 			</div>
 			<div class="flex flex-col gap-4">
 				<Ingredients bind:recipe />

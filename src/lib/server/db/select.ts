@@ -61,6 +61,7 @@ const likes = db
 export const partialRecipe = {
 	id: s.recipe.id,
 	title: s.recipe.title,
+	category: s.category.name,
 	tags: s.recipe.tags,
 	createdAt: s.recipe.createdAt,
 	author: user,

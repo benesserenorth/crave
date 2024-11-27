@@ -10,3 +10,5 @@ export type Size =
 	| '6xl'
 	| '7xl'
 	| 'full';
+
+export type MaybePromise<T> = T | Promise<T>;

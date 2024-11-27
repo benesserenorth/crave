@@ -1,8 +1,8 @@
 <script lang="ts" generics="T">
-	import type { MaybePromise } from '@sveltejs/kit';
-	import { tick } from 'svelte';
-	
+	import type { MaybePromise } from '$lib/types';
 	import { viewport } from '$lib/util';
+
+	import { tick } from 'svelte';
 
 	export let data: T[];
 	export let load: (index: number) => MaybePromise<T[]>;
@@ -18,7 +18,13 @@
 		loading = true;
 		
 		const localCtx = ++ctx;
-		const items = await load(index++);
+		let items: T[] = [];
+
+		try {
+			items = await load(index++);
+		} catch (e) {
+			console.error(e);
+		}
 
 		if (localCtx !== ctx) {
 			return;

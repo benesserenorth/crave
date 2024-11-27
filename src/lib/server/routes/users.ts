@@ -7,10 +7,10 @@ import { API_SECRET } from '$env/static/private';
 import { procedure, protectedProcedure, router } from '$lib/server/trpc';
 
 import { db } from '../db';
-import { pendingUser, recipe, subscription, user } from '../db/schema';
+import { category, pendingUser, recipe, subscription, user } from '../db/schema';
 import { count, partialRecipe, subscribed, user as userSelect } from '../db/select';
 import { auth } from '../lucia';
-import { PartialRecipe, User } from '../schema';
+import { Category, Id, PartialRecipe, User } from '../schema';
 import { get } from '../sentry';
 
 export default router({
@@ -277,7 +277,7 @@ export default router({
 				tags: ['user'],
 			},
 		})
-		.input(z.object({ username: z.string().toLowerCase(), page: z.number().int().nonnegative().default(0) }))
+		.input(z.object({ username: z.string().toLowerCase(), page: z.number().int().nonnegative().default(0), categoryId: Id.optional() }))
 		.output(PartialRecipe.array())
 		.query(async ({ input }) => {
 			const authorId = db
@@ -291,12 +291,69 @@ export default router({
 				.select(partialRecipe)
 				.from(recipe)
 				.innerJoin(user, eq(recipe.authorId, user.id))
-				.where(eq(recipe.authorId, authorId))
+				.leftJoin(category, eq(recipe.categoryId, category.id))
+				.where(and(eq(recipe.authorId, authorId), input.categoryId ? eq(recipe.categoryId, input.categoryId) : undefined))
 				.orderBy(desc(recipe.createdAt), asc(recipe.id))
 				.offset(input.page * 25)
 				.limit(25));
 
 			return recipes;
+		}),
+	categories: protectedProcedure
+		.meta({
+			openapi: {
+				method: 'GET',
+				path: '/users/@{username}/categories',
+				summary: 'Get user\'s recipe categories',
+				description: 'Gets a user\'s recipe categories',
+				tags: ['user'],
+			},
+		})
+		.input(z.object({ username: z.string().toLowerCase() }))
+		.output(Category.array())
+		.query(async ({ input }) => {
+			const authorId = db
+				.select({
+					id: user.id,
+				})
+				.from(user)
+				.where(eq(user.username, input.username));
+
+			const categories = await get(db
+				.select({
+					id: category.id,
+					name: category.name,
+				})
+				.from(category)
+				.where(eq(category.userId, authorId)));
+
+			return categories;
+		}),
+	createCategory: protectedProcedure
+		.meta({
+			openapi: {
+				method: 'POST',
+				path: '/users/me/categories',
+				summary: 'Create category',
+				description: 'Creates a new recipe category',
+				tags: ['user'],
+			},
+		})
+		.input(z.object({ name: z.string() }))
+		.output(Category)
+		.mutation(async ({ ctx, input }) => {
+			const c = await get(db
+				.insert(category)
+				.values({
+					userId: ctx.session.user.userId,
+					name: input.name,
+				})
+				.returning({
+					id: category.id,
+					name: category.name,
+				}));
+
+			return c[0];
 		}),
 	subscriptions: protectedProcedure
 		.meta({

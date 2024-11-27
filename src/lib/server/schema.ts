@@ -34,10 +34,10 @@ export const PartialRecipe = z.object({
 	id: Id,
 	author: User,
 	title: z.string().min(3, 'Recipe title must be at least 10 characters in length.'),
-	thumbnail: z.string().min(1, 'Recipe thumbnail is required.').optional(),
+	thumbnail: z.string().optional(),
 	tags: z.string().min(1, 'Tags must contain at least 1 character.').array(),
 	embedding: Embedding.optional(),
-
+	category: z.string().optional().nullable(),
 	views: z.number().nonnegative().int(),
 	createdAt: CreatedAt,
 });
@@ -56,6 +56,11 @@ export const Recipe = z.object({
 })
 	.merge(Nutrition)
 	.merge(PartialRecipe);
+
+export const Category = z.object({
+	id: Id,
+	name: z.string(),
+});
 
 export type Recipe = z.infer<typeof Recipe>;
 

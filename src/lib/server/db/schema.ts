@@ -1,12 +1,11 @@
 import { sql } from 'drizzle-orm';
-import { bigint, boolean, index, integer, pgTable, primaryKey, real, serial, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
-import { vector } from 'pgvector/drizzle-orm';
+import { bigint, boolean, index, integer, pgTable, primaryKey, real, serial, text, timestamp, unique, uuid, varchar, vector } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
 	id: varchar('id', { length: 15 }).primaryKey(),
 	name: text('name').notNull(),
 	username: varchar('username', { length: 39 }).notNull().unique(),
-	embedding: vector('embedding', { dimension: 768 }),
+	embedding: vector('embedding', { dimensions: 768 }),
 	verified: boolean('verified').notNull().default(false),
 	thumbnail: text('thumbnail'),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
@@ -27,8 +26,8 @@ export const pendingUser = pgTable('pending_user', {
 
 export const recipe = pgTable('recipe', {
 	id: serial('id').primaryKey(),
-	authorId: text('author_id').notNull().references(() => user.id),
-	embedding: vector('embedding', { dimension: 768 }),
+	authorId: text('author_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	embedding: vector({ dimensions: 768 }),
 	title: text('title').notNull().unique(),
 	thumbnail: text('thumbnail').notNull(),
 	url: text('url'),
@@ -43,23 +42,35 @@ export const recipe = pgTable('recipe', {
 	protein: real('protein').notNull(),
 	sodium: real('sodium').notNull(),
 	sugar: real('sugar').notNull(),
+	categoryId: integer('category_id').references(() => category.id, { onDelete: 'set null', onUpdate: 'cascade' }),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, table => {
 	return {
 		authorIdx: index().on(table.authorId),
-		embeddingIdx: sql`CREATE INDEX IF NOT EXISTS "recipe_embedding_index" ON ${table} USING hnsw (${table.embedding} vector_ip_ops)`,
+		embeddingIdx: index().using('hnsw', table.embedding.op('vector_ip_ops')),
 	}
 });
 
 export const history = pgTable('history', {
 	id: serial('id').primaryKey(),
-	userId: text('user_id').notNull().references(() => user.id),
-	recipeId: integer('recipe_id').notNull().references(() => recipe.id),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	recipeId: integer('recipe_id').notNull().references(() => recipe.id, { onDelete: 'cascade' }),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, table => {
 	return {
 		userIdx: index().on(table.userId),
 		recipeIdx: index().on(table.recipeId),
+	}
+});
+
+export const category = pgTable('category', {
+	id: serial('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	name: text('name').notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, table => {
+	return {
+		userIdxNameIdx: unique().on(table.userId, table.name),
 	}
 });
 
@@ -75,8 +86,8 @@ export const subscription = pgTable('subscription', {
 });
 
 export const like = pgTable('like', {
-	userId: text('user_id').notNull().references(() => user.id),
-	recipeId: integer('recipe_id').notNull().references(() => recipe.id),
+	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+	recipeId: integer('recipe_id').notNull().references(() => recipe.id, { onDelete: 'cascade' }),
 	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, table => {
 	return {
@@ -88,13 +99,13 @@ export const like = pgTable('like', {
 
 export const userKey = pgTable('user_key', {
 	id: varchar('id', { length: 255 }).primaryKey(),
-	userId: varchar('user_id', { length: 15 }).notNull().references(() => user.id),
+	userId: varchar('user_id', { length: 15 }).notNull().references(() => user.id, { onDelete: 'cascade' }),
 	password: varchar('hashed_password', { length: 255 }),
 });
 
 export const userSession = pgTable('user_session', {
 	id: varchar('id', { length: 128 }).primaryKey(),
-	userId: varchar('user_id', { length: 15 }).notNull().references(() => user.id),
+	userId: varchar('user_id', { length: 15 }).notNull().references(() => user.id, { onDelete: 'cascade' }),
 	activeExpires: bigint('active_expires', { mode: 'number' }).notNull(),
 	idleExpires: bigint('idle_expires', { mode: 'number' }).notNull(),
 });

@@ -1,68 +1,40 @@
 {
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1703041047328,
-      "tag": "0000_lethal_turbo",
+      "version": "7",
+      "when": 1732682425673,
+      "tag": "0000_init_extensions",
       "breakpoints": true
     },
     {
       "idx": 1,
-      "version": "5",
-      "when": 1703307577288,
-      "tag": "0001_curly_colonel_america",
+      "version": "7",
+      "when": 1732682928193,
+      "tag": "0001_real_callisto",
       "breakpoints": true
     },
     {
       "idx": 2,
-      "version": "5",
-      "when": 1703356040507,
-      "tag": "0002_sloppy_lenny_balinger",
+      "version": "7",
+      "when": 1732682945621,
+      "tag": "0002_add_procedures",
       "breakpoints": true
     },
     {
       "idx": 3,
-      "version": "5",
-      "when": 1703361738039,
-      "tag": "0003_glossy_vulture",
+      "version": "7",
+      "when": 1732684479226,
+      "tag": "0003_tan_skullbuster",
       "breakpoints": true
     },
     {
       "idx": 4,
-      "version": "5",
-      "when": 1703369203314,
-      "tag": "0004_mighty_the_spike",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1703562202030,
-      "tag": "0005_furry_hemingway",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1703967959573,
-      "tag": "0006_blue_romulus",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1703968138967,
-      "tag": "0007_equal_joseph",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1723234710232,
-      "tag": "0008_last_kang",
+      "version": "7",
+      "when": 1732687488344,
+      "tag": "0004_sour_raider",
       "breakpoints": true
     }
   ]
