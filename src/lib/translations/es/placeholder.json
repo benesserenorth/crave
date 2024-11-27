@@ -8,5 +8,6 @@
 	"add-description": "Añadir descripción...",
 	"add-notes": "Añadir notas...",
 	"recipe-content": "Contenido de la receta",
-	"add-source-url": "Añadir URL de la fuente..."
+	"add-source-url": "Añadir URL de la fuente...",
+	"add-category": "Añadir categoría..."
 }

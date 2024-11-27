@@ -8,5 +8,6 @@
 	"add-description": "Add description...",
 	"add-notes": "Add notes...",
 	"recipe-content": "Paste recipe content here...",
-	"add-source-url": "Add source URL..."
+	"add-source-url": "Add source URL...",
+	"add-category": "Add category..."
 }

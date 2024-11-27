@@ -42,5 +42,6 @@
 	"notes": "Notas",
 	"drop-to-upload": "Arrastra para subir",
 	"enter-manually": "Ingresar manualmente",
-	"generate-recipe": "Generar receta"
+	"generate-recipe": "Generar receta",
+	"create-category": "Crear categoría"
 }
