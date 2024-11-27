@@ -58,6 +58,11 @@
 		categories.push(newCategory);
 		categories = categories;
 	}
+
+	$: if (categoryModal && recipe.category === undefined) {
+		recipe.category = null;
+		categoryModal.showModal();
+	}
 </script>
 
 <dialog id="info" class="modal prose-h3:m-0" bind:this={categoryModal}>
@@ -70,7 +75,7 @@
 
 		<h3 class="font-bold text-lg">{$t('content.create-category-title')}</h3>
 
-		<form method="dialog" on:submit={onCategoryCreate}>
+		<form class="flex flex-row place-items-center gap-2" method="dialog" on:submit={onCategoryCreate}>
 			<input
 				type="text"
 				class="bg-base-300 rounded-lg text-lg lg:text-2xl p-2"
@@ -79,7 +84,7 @@
 				required
 			/>
 
-			<button class="btn btn-primary mt-2">{$t('label.create-category')}</button>
+			<button class="btn btn-primary">{$t('label.create-category')}</button>
 		</form>
 	</div>
 	<form method="dialog" class="modal-backdrop">
@@ -166,10 +171,12 @@
 
 <select class="select bg-base-300 rounded-lg text-lg lg:text-2xl p-2" bind:value={recipe.category}>
 	<option disabled selected hidden>{$t('placeholder.add-category')}</option>
-	<option value={undefined} on:click|preventDefault={() => categoryModal.showModal()}>
-		<button class="btn">
-			{$t('label.create-category')}
-		</button>
+	<option value={undefined}>
+		{$t('label.create-category')}
+	</option>
+
+	<option value={null}>
+		None
 	</option>
 	
 	{#each categories as category (category.id)}

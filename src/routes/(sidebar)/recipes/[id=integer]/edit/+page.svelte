@@ -36,6 +36,7 @@
 		notes: '',
 		description: '',
 		url: null,
+		category: '',
 	} as Recipe & { id: number };
 
 	$: {
