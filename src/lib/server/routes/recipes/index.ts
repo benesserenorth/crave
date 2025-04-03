@@ -428,8 +428,6 @@ export default router({
 					.limit(input.limit)
 			);
 
-			console.log(recipes);
-
 			return recipes;
 		}),
 	get: protectedProcedure
@@ -513,6 +511,28 @@ export default router({
 					.onConflictDoNothing({
 						target: [like.userId, like.recipeId],
 					})
+			);
+		}),
+	delete: protectedProcedure
+		.meta({
+			method: "DELETE",
+			path: "/recipes/{id}",
+			summary: "Delete recipe",
+			description: "Deletes a specific recipe.",
+			tags: ["recipe"],
+		})
+		.input(z.object({ id: Id }))
+		.output(z.void())
+		.mutation(async ({ input, ctx }) => {
+			await get(
+				db
+					.delete(recipe)
+					.where(
+						and(
+							eq(recipe.id, input.id),
+							eq(recipe.authorId, ctx.session.user.userId)
+						)
+					)
 			);
 		}),
 	unlike: protectedProcedure

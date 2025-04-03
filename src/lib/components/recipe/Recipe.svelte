@@ -23,6 +23,8 @@
 		await trpc.recipes.approve.mutate({
 			id: recipe.id,
 		});
+
+		canApprove = false;
 	}
 </script>
 

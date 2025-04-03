@@ -1,20 +1,33 @@
 <script lang="ts">
-	import type { User } from 'lucia';
+	import type { User } from "lucia";
 
-	import Edit from '~icons/ic/baseline-edit';
-	import { PUBLIC_FALLBACK_AVATAR_URL } from '$env/static/public';
-	import type { PartialRecipe } from '$lib/server/schema';
-	import type { Size } from '$lib/types';
-	import { showOnLoad } from '$lib/util';
+	import Edit from "~icons/ic/baseline-edit";
+	import Delete from "~icons/ic/baseline-delete";
+	import { PUBLIC_FALLBACK_AVATAR_URL } from "$env/static/public";
+	import type { PartialRecipe } from "$lib/server/schema";
+	import type { Size } from "$lib/types";
+	import { showOnLoad } from "$lib/util";
 
-	import RecipeCardInformation from './RecipeCardInformation.svelte';
+	import RecipeCardInformation from "./RecipeCardInformation.svelte";
+	import { trpc } from "$lib/client";
 
 	export let recipe: PartialRecipe | undefined = undefined;
 	export let user: User | undefined = undefined;
 
-	export let size: Size = '3xl';
+	export let size: Size = "3xl";
 	export let author = false;
 	export let side = false;
+
+	function remove(event: MouseEvent) {
+		event.preventDefault();
+		if (!recipe) return;
+
+		if (confirm("Are you sure you want to delete this recipe?")) {
+			trpc.recipes.delete.mutate({
+				id: recipe.id,
+			});
+		}
+	}
 </script>
 
 {#if recipe}
@@ -34,9 +47,15 @@
 			/>
 
 			{#if user && user.userId === recipe.author.id}
-				<a href="/recipes/{recipe.id}/edit" class="absolute top-2 right-2">
-					<Edit />
-				</a>
+				<div class="absolute top-2 right-2 flex flex-row gap-2">
+					<button on:click={remove} class="">
+						<Delete />
+					</button>
+
+					<a href="/recipes/{recipe.id}/edit">
+						<Edit />
+					</a>
+				</div>
 			{/if}
 		</div>
 
