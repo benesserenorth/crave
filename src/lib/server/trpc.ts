@@ -1,7 +1,7 @@
-import { initTRPC, TRPCError } from '@trpc/server';
-import type { OpenApiMeta } from 'trpc-openapi';
+import { initTRPC, TRPCError } from "@trpc/server";
+import type { OpenApiMeta } from "trpc-openapi";
 
-import type { Context } from '$lib/server/context';
+import type { Context } from "$lib/server/context";
 
 const t = initTRPC
 	.context<Context>()
@@ -19,8 +19,9 @@ const t = initTRPC
 export const middleware = t.middleware;
 export const router = t.router;
 
-const isAuthenticated = middleware(opts => {
-	if (opts.ctx.session === null || !opts.ctx.session.user) throw new TRPCError({ code: 'UNAUTHORIZED' });
+const isAuthenticated = middleware((opts) => {
+	if (opts.ctx.session === null || !opts.ctx.session.user)
+		throw new TRPCError({ code: "UNAUTHORIZED" });
 
 	return opts.next({
 		ctx: {
@@ -32,5 +33,16 @@ const isAuthenticated = middleware(opts => {
 	});
 });
 
+const isAdmin = middleware((opts) => {
+	if (opts.ctx.session === null || !opts.ctx.session.user)
+		throw new TRPCError({ code: "UNAUTHORIZED" });
+	if (!opts.ctx.session.user.admin) throw new TRPCError({ code: "FORBIDDEN" });
+
+	return opts.next({
+		ctx: opts.ctx,
+	});
+});
+
 export const procedure = t.procedure;
 export const protectedProcedure = t.procedure.use(isAuthenticated);
+export const adminProcedure = protectedProcedure.use(isAdmin);

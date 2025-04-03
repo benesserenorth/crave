@@ -6,26 +6,27 @@ declare global {
 		// interface PageData {}
 		// interface Platform {}
 		interface Locals {
-			auth: import('lucia').AuthRequest;
+			auth: import("lucia").AuthRequest;
 		}
 	}
 
 	namespace Lucia {
-		type Auth = import('$lib/server/lucia').Auth;
+		type Auth = import("$lib/server/lucia").Auth;
 		type DatabaseUserAttributes = {
 			name: string;
 			username: string;
 			thumbnail: string | null;
+			admin: boolean;
 		};
 		type DatabaseSessionAttributes = Record<string, never>;
 	}
 
 	namespace svelteHTML {
 		interface HTMLAttributes {
-			'on:enterviewport'?: () => void;
-			'on:exitviewport'?: () => void;
+			"on:enterviewport"?: () => void;
+			"on:exitviewport"?: () => void;
 		}
 	}
 }
 
-export { };
+export {};

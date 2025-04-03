@@ -1,18 +1,29 @@
 <script lang="ts">
-	import type { User } from 'lucia';
+	import type { User } from "lucia";
 
-	import { PUBLIC_FALLBACK_AVATAR_URL } from '$env/static/public';
-	import type { Recipe } from '$lib/server/schema';
-	import { t } from '$lib/translations';
-	import { showOnLoad } from '$lib/util';
+	import { PUBLIC_FALLBACK_AVATAR_URL } from "$env/static/public";
+	import type { Recipe } from "$lib/server/schema";
+	import { t } from "$lib/translations";
+	import { showOnLoad } from "$lib/util";
 
-	import Subscribe from '../Subscribe.svelte';
-	import Like from './Like.svelte';
-	import NutritionFacts from './NutritionFacts.svelte';
-	import RecipeCardInformation from './RecipeCardInformation.svelte';
+	import Subscribe from "../Subscribe.svelte";
+	import Like from "./Like.svelte";
+	import NutritionFacts from "./NutritionFacts.svelte";
+	import RecipeCardInformation from "./RecipeCardInformation.svelte";
+	import { trpc } from "$lib/client";
 
 	export let recipe: Recipe | undefined = undefined;
 	export let user: User | undefined;
+
+	$: canApprove = recipe?.pending && recipe?.author.id !== user?.userId;
+
+	async function approve() {
+		if (!recipe) return;
+
+		await trpc.recipes.approve.mutate({
+			id: recipe.id,
+		});
+	}
 </script>
 
 <div class="w-full">
@@ -43,12 +54,21 @@
 				</a>
 
 				<div class="ml-auto w-fit flex flex-row place-items-center gap-2">
+					{#if canApprove}
+						<button
+							on:click={approve}
+							class="btn btn-accent no-underline text-accent-content"
+						>
+							Approve
+						</button>
+					{/if}
+
 					{#if user && user.userId === recipe.author.id}
 						<a
 							href="/recipes/{recipe.id}/edit"
 							class="btn btn-accent no-underline text-accent-content"
 						>
-							{$t('label.edit')}
+							{$t("label.edit")}
 						</a>
 					{/if}
 
@@ -81,7 +101,7 @@
 			<NutritionFacts {recipe} />
 
 			<h2>
-				{$t('label.ingredients')}
+				{$t("label.ingredients")}
 			</h2>
 
 			<ul>
@@ -91,7 +111,7 @@
 			</ul>
 
 			<h2>
-				{$t('label.directions')}
+				{$t("label.directions")}
 			</h2>
 
 			<ol>
@@ -104,7 +124,7 @@
 
 			{#if recipe.notes}
 				<h2>
-					{$t('label.notes')}
+					{$t("label.notes")}
 				</h2>
 
 				<p>

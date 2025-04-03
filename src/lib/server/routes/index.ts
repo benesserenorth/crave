@@ -1,7 +1,7 @@
-import { router } from '$lib/server/trpc';
+import { router } from "$lib/server/trpc";
 
-import recipes from './recipes';
-import users from './users';
+import recipes from "./recipes";
+import users from "./users";
 
 export const app = router({
 	recipes,

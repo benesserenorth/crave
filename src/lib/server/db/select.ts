@@ -1,7 +1,7 @@
-import { and, eq, type SQL, sql, type SQLWrapper } from 'drizzle-orm';
+import { and, eq, type SQL, sql, type SQLWrapper } from "drizzle-orm";
 
-import { db } from '.';
-import * as s from './schema';
+import { db } from ".";
+import * as s from "./schema";
 
 export function exists(subquery: SQLWrapper): SQL<boolean> {
 	return sql`exists (${subquery})`;
@@ -15,12 +15,17 @@ export function random(): SQL<number> {
 	return sql`random()`;
 }
 
-export function maxInnerProduct(lhs: SQLWrapper, rhs: SQLWrapper | number[]): SQL<number> {
-	return Array.isArray(rhs) ? sql`${lhs} <#> ${`[${rhs.join(',')}]`}` : sql`${lhs} <#> ${rhs}`;
+export function maxInnerProduct(
+	lhs: SQLWrapper,
+	rhs: SQLWrapper | number[]
+): SQL<number> {
+	return Array.isArray(rhs)
+		? sql`${lhs} <#> ${`[${rhs.join(",")}]`}`
+		: sql`${lhs} <#> ${rhs}`;
 }
 
 export const views = sql<number>`${db
-	.select({ value: count().as('views') })
+	.select({ value: count().as("views") })
 	.from(s.history)
 	.where(eq(s.history.recipeId, s.recipe.id))}`;
 
@@ -33,25 +38,32 @@ export const user = {
 	createdAt: s.user.createdAt,
 };
 
-const liked = (userId?: string) => userId ? exists(db
-	.select({ value: sql`1` })
-	.from(s.like)
-	.where(and(
-		eq(s.like.recipeId, s.recipe.id),
-		eq(s.like.userId, userId),
-	)))
-	.as('l')
-	: sql<boolean>`false`;
+const liked = (userId?: string) =>
+	userId
+		? exists(
+				db
+					.select({ value: sql`1` })
+					.from(s.like)
+					.where(
+						and(eq(s.like.recipeId, s.recipe.id), eq(s.like.userId, userId))
+					)
+		  ).as("l")
+		: sql<boolean>`false`;
 
-export const subscribed = (userId?: string) => userId ? exists(db
-	.select({ value: sql`1` })
-	.from(s.subscription)
-	.where(and(
-		eq(s.subscription.channelId, s.user.id),
-		eq(s.subscription.userId, userId),
-	)))
-	.as('l')
-	: sql<boolean>`false`;
+export const subscribed = (userId?: string) =>
+	userId
+		? exists(
+				db
+					.select({ value: sql`1` })
+					.from(s.subscription)
+					.where(
+						and(
+							eq(s.subscription.channelId, s.user.id),
+							eq(s.subscription.userId, userId)
+						)
+					)
+		  ).as("l")
+		: sql<boolean>`false`;
 
 const likes = db
 	.select({ value: count() })
@@ -65,6 +77,7 @@ export const partialRecipe = {
 	tags: s.recipe.tags,
 	createdAt: s.recipe.createdAt,
 	author: user,
+	pending: s.recipe.pending,
 	views,
 };
 
