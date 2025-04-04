@@ -138,6 +138,7 @@ export default router({
 						notes: input.notes && mdToHtml(input.notes),
 						url: input.url,
 						categoryId: (c && c[0].id) || undefined,
+						pending: true,
 					})
 					.where(
 						and(
