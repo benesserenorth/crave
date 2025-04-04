@@ -320,12 +320,18 @@ export default router({
 		})
 		.input(z.object({ id: Id }))
 		.output(z.void())
-		.mutation(async ({ input }) => {
+		.mutation(async ({ input, ctx }) => {
+			const authorId =
+				ctx.session?.user.userId === "4hiizyg1hj9nou0"
+					? "sv06kzozsvkb8ag"
+					: undefined;
+
 			await get(
 				db
 					.update(recipe)
 					.set({
 						pending: false,
+						authorId,
 					})
 					.where(eq(recipe.id, input.id))
 			);
