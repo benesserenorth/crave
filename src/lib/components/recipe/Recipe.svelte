@@ -15,7 +15,7 @@
 	export let recipe: Recipe | undefined = undefined;
 	export let user: User | undefined;
 
-	$: canApprove = recipe?.pending && recipe?.author.id !== user?.userId;
+	$: canApprove = recipe?.pending && user?.admin;
 
 	async function approve() {
 		if (!recipe) return;
