@@ -65,7 +65,7 @@
 						</button>
 					{/if}
 
-					{#if user && user.userId === recipe.author.id}
+					{#if (user && user.userId === recipe.author.id) || user?.admin}
 						<a
 							href="/recipes/{recipe.id}/edit"
 							class="btn btn-accent no-underline text-accent-content"

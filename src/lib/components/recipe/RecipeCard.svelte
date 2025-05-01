@@ -46,11 +46,13 @@
 				use:showOnLoad
 			/>
 
-			{#if user && user.userId === recipe.author.id}
+			{#if (user && user.userId === recipe.author.id) || user?.admin}
 				<div class="absolute top-2 right-2 flex flex-row gap-2">
-					<button on:click={remove} class="">
-						<Delete />
-					</button>
+					{#if user && user.userId === recipe.author.id}
+						<button on:click={remove} class="">
+							<Delete />
+						</button>
+					{/if}
 
 					<a href="/recipes/{recipe.id}/edit">
 						<Edit />

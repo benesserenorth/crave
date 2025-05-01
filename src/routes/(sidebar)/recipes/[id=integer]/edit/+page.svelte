@@ -2,41 +2,41 @@
 </script>
 
 <script lang="ts">
-	import { TRPCClientError } from '@trpc/client';
-	import toast from 'svelte-french-toast';
+	import { TRPCClientError } from "@trpc/client";
+	import toast from "svelte-french-toast";
 
-	import { goto } from '$app/navigation';
-	import { resolveRoute } from '$app/paths';
-	import { page } from '$app/stores';
-	import { trpc } from '$lib/client';
-	import { t } from '$lib/translations';
-	import { resize } from '$lib/util';
+	import { goto } from "$app/navigation";
+	import { resolveRoute } from "$app/paths";
+	import { page } from "$app/stores";
+	import { trpc } from "$lib/client";
+	import { t } from "$lib/translations";
+	import { resize } from "$lib/util";
 
-	import type { Recipe } from '../../create/(components)/edit';
-	import Content from '../../create/(components)/edit/Content.svelte';
-	import Directions from '../../create/(components)/edit/Directions.svelte';
-	import Ingredients from '../../create/(components)/edit/Ingredients.svelte';
-	import Notes from '../../create/(components)/edit/Notes.svelte';
-	import Nutrition from '../../create/(components)/edit/Nutrition.svelte';
-    import type { PageData } from './$types';
+	import type { Recipe } from "../../create/(components)/edit";
+	import Content from "../../create/(components)/edit/Content.svelte";
+	import Directions from "../../create/(components)/edit/Directions.svelte";
+	import Ingredients from "../../create/(components)/edit/Ingredients.svelte";
+	import Notes from "../../create/(components)/edit/Notes.svelte";
+	import Nutrition from "../../create/(components)/edit/Nutrition.svelte";
+	import type { PageData } from "./$types";
 
 	let recipe = {
 		id: 0,
-		title: '',
-		thumbnail: '',
+		title: "",
+		thumbnail: "",
 		tags: [],
-		ingredients: [''],
-		directions: [''],
+		ingredients: [""],
+		directions: [""],
 		calories: 0,
 		fat: 0,
 		saturatedFat: 0,
 		protein: 0,
 		sodium: 0,
 		sugar: 0,
-		notes: '',
-		description: '',
+		notes: "",
+		description: "",
 		url: null,
-		category: '',
+		category: "",
 	} as Recipe & { id: number };
 
 	$: {
@@ -51,7 +51,7 @@
 			})
 			.then((r) => {
 				recipe = {
-					thumbnail: '',
+					thumbnail: "",
 					...r,
 				};
 			})
@@ -61,7 +61,7 @@
 	}
 
 	async function submit() {
-		recipe.thumbnail = recipe.thumbnail && await resize(recipe.thumbnail);
+		recipe.thumbnail = recipe.thumbnail && (await resize(recipe.thumbnail));
 
 		try {
 			const { id } = await toast.promise(
@@ -84,23 +84,23 @@
 					category: recipe.category,
 				}),
 				{
-					loading: $t('toast.update-recipe-loading'),
-					success: $t('toast.update-recipe-done'),
+					loading: $t("toast.update-recipe-loading"),
+					success: $t("toast.update-recipe-done"),
 					error: (e) => {
 						if (e instanceof TRPCClientError) {
 							return e.message;
 						} else {
-							return $t('error.unknown');
+							return $t("error.unknown");
 						}
 					},
 				},
 				{
 					style:
-						'background-color: oklch(var(--b2)); color: oklch(var(--bc) / var(--tw-text-opacity));',
+						"background-color: oklch(var(--b2)); color: oklch(var(--bc) / var(--tw-text-opacity));",
 				},
 			);
 
-			await goto(resolveRoute('/recipes/[id]', { id: id.toString() }));
+			await goto(resolveRoute("/recipes/[id]", { id: id.toString() }));
 		} catch {
 			// do nothing
 		}
@@ -131,7 +131,7 @@
 
 		<div class="flex flex-row flex-wrap mt-auto">
 			<button class="btn btn-secondary ml-auto" on:click={submit}>
-				{$t('label.update')}
+				{$t("label.update")}
 			</button>
 		</div>
 	</div>

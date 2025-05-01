@@ -1,29 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/logo.svg" />
 
-<head>
-	<meta charset="utf-8" />
-	<link rel="icon" href="%sveltekit.assets%/logo.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="YouTube-like recipe explorer with semantic recommendations and powerful search."
+    />
+    <meta name="theme-color" content="oklch(0.6569 0.196 275.75)" />
 
-	<meta name="viewport" content="width=device-width" />
-	<meta name="color-scheme" content="light dark" />
-	<meta name="description" content="YouTube-like recipe explorer with semantic recommendations and powerful search." />
-	<meta name="theme-color" content="oklch(0.6569 0.196 275.75)" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
 
-	<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <meta name="og:type" content="website" />
+    <meta name="og:title" content="Crave" />
+    <meta
+      name="og:description"
+      content="YouTube-like recipe explorer with semantic recommendations and powerful search."
+    />
+    <meta name="og:image" content="%sveltekit.assets%/logo.svg" />
 
-	<meta name="og:type" content="website" />
-	<meta name="og:title" content="Crave" />
-	<meta name="og:description"
-		content="YouTube-like recipe explorer with semantic recommendations and powerful search." />
-	<meta name="og:image" content="%sveltekit.assets%/logo.svg" />
+    <title>Crave</title>
+    %sveltekit.head%
+  </head>
 
-	<title>Crave</title>
-	%sveltekit.head%
-</head>
-
-<body data-sveltekit-preload-data="hover">
-	<div style="display: contents">%sveltekit.body%</div>
-</body>
-
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
 </html>

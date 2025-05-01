@@ -98,13 +98,26 @@ export default router({
 			})
 		)
 		.mutation(async ({ input, ctx }) => {
+			const authorId = ctx.session.user.admin
+				? (
+					await get(
+						db
+							.select({
+								authorId: recipe.authorId,
+							})
+							.from(recipe)
+							.where(and(eq(recipe.id, input.id)))
+					)
+				)[0]?.authorId ?? ctx.session.user.userId
+				: ctx.session.user.userId;
+
 			const c =
 				input.category &&
 				(await get(
 					db
 						.insert(category)
 						.values({
-							userId: ctx.session.user.userId,
+							userId: authorId,
 							name: input.category,
 						})
 						.onConflictDoUpdate({
@@ -140,12 +153,7 @@ export default router({
 						categoryId: (c && c[0].id) || undefined,
 						pending: true,
 					})
-					.where(
-						and(
-							eq(recipe.id, input.id),
-							eq(recipe.authorId, ctx.session.user.userId)
-						)
-					)
+					.where(and(eq(recipe.id, input.id), eq(recipe.authorId, authorId)))
 					.returning({
 						id: recipe.id,
 						title: recipe.title,
@@ -321,10 +329,17 @@ export default router({
 		.input(z.object({ id: Id }))
 		.output(z.void())
 		.mutation(async ({ input, ctx }) => {
+			const r = await get(
+				db
+					.select({
+						authorId: recipe.authorId,
+					})
+					.from(recipe)
+					.where(eq(recipe.id, input.id))
+			);
+
 			const authorId =
-				ctx.session?.user.userId === "4hiizyg1hj9nou0"
-					? "sv06kzozsvkb8ag"
-					: undefined;
+				r[0]?.authorId === "4hiizyg1hj9nou0" ? "sv06kzozsvkb8ag" : undefined;
 
 			await get(
 				db
@@ -462,9 +477,9 @@ export default router({
 							ctx.session?.user?.admin
 								? undefined
 								: or(
-										eq(recipe.pending, false),
-										eq(recipe.authorId, ctx.session?.user.userId ?? "")
-								  )
+									eq(recipe.pending, false),
+									eq(recipe.authorId, ctx.session?.user.userId ?? "")
+								)
 						)
 					)
 			);
@@ -664,9 +679,8 @@ export default router({
 				protein: 0,
 				sodium: 0,
 				sugar: 0,
-				notes: `${recipe.notes.join("\n")}\n\n**Attribution:** ${
-					recipe.attribution
-				}`.trim(),
+				notes: `${recipe.notes.join("\n")}\n\n**Attribution:** ${recipe.attribution
+					}`.trim(),
 				description: recipe.description,
 				url: null,
 			};
