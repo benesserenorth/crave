@@ -59,20 +59,24 @@ export const Recipe = z
 		likes: z.number().nonnegative().int(),
 		ingredients: z
 			.string()
+			.trim()
 			.min(5, "Ingredients must be at least 5 characters in length.")
 			.array()
 			.min(1, "At least one ingredient is required."),
 		directions: z
 			.string()
+			.trim()
 			.min(5, "Directions must be at least 5 characters in length")
 			.array()
 			.min(1, "At least one direction is required."),
 		description: z
 			.string()
+			.trim()
 			.max(1_000, "Description cannot be more than 1,000 characters.")
 			.nullable(),
 		notes: z
 			.string()
+			.trim()
 			.max(1_000, "Notes cannot be more than 1,000 characters.")
 			.nullable(),
 		url: z.string().url().nullable(),
