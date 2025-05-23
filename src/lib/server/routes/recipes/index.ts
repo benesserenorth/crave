@@ -426,17 +426,23 @@ export default router({
 
 			return recipes;
 		}),
-	random: protectedProcedure
+	list: protectedProcedure
 		.meta({
 			openapi: {
 				method: "GET",
-				path: "/recipes/random",
-				summary: "Random recipes",
-				description: "Gets random recipes that haven't been seen yet.",
+				path: "/recipes",
+				summary: "Get recipes",
+				description: "Gets recipes.",
 				tags: ["recipe"],
 			},
 		})
-		.input(z.object({ limit: z.number().int().min(1).max(100).default(25) }))
+		.input(
+			z.object({
+				limit: z.number().int().min(1).max(100).default(25),
+				page: z.number().int().nonnegative().default(0),
+				category: z.string().optional(),
+			})
+		)
 		.output(PartialRecipe.array())
 		.query(async ({ input }) => {
 			const recipes = await get(
@@ -445,8 +451,14 @@ export default router({
 					.from(recipe)
 					.innerJoin(user, eq(recipe.authorId, user.id))
 					.leftJoin(category, eq(recipe.categoryId, category.id))
-					.where(eq(recipe.pending, false))
-					.orderBy(random())
+					.where(
+						and(
+							eq(recipe.pending, false),
+							input.category ? eq(category.name, input.category) : undefined
+						)
+					)
+					.orderBy(desc(recipe.createdAt), asc(recipe.id))
+					.offset(input.page * input.limit)
 					.limit(input.limit)
 			);
 
