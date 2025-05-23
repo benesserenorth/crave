@@ -75,7 +75,7 @@
 
 		<h3 class="font-bold text-lg">{$t('content.create-category-title')}</h3>
 
-		<form class="flex flex-row place-items-center gap-2" method="dialog" on:submit={onCategoryCreate}>
+		<form class="flex flex-col gap-2 w-full" method="dialog" on:submit={onCategoryCreate}>
 			<input
 				type="text"
 				class="bg-base-300 rounded-lg text-lg lg:text-2xl p-2"

@@ -1,4 +1,0 @@
-flask
-FlagEmbedding
-python-dotenv
-waitress
